@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#101826">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="可欣快跑">
+  <title>可欣快跑</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app-shell">
+    <section class="game-panel">
+      <header class="hud">
+        <div class="hud-card">
+          <span class="hud-label">当前分数</span>
+          <strong id="scoreValue">0</strong>
+        </div>
+        <div class="hud-card hud-title">
+          <span class="badge">原创元气少女跑酷</span>
+          <h1>可欣快跑</h1>
+        </div>
+        <div class="hud-card">
+          <span class="hud-label">最高分</span>
+          <strong id="bestValue">0</strong>
+        </div>
+      </header>
+
+      <section class="stage-wrap">
+        <canvas id="gameCanvas" width="1280" height="720" aria-label="跑酷游戏画面"></canvas>
+
+        <div id="startOverlay" class="overlay visible">
+          <div class="overlay-card">
+            <p class="overlay-kicker">清爽眼镜少女登场</p>
+            <h2>冲刺、跳跃、挥击</h2>
+            <p class="overlay-text">
+              可欣会一直向前跑。躲开石头、木桶、飞镖、水坑和敌人，
+              用跳跃和攻击冲出这条热血赛道。
+            </p>
+            <div class="tips-grid">
+              <span>跳跃：点“跳跃”或按 <b>空格</b></span>
+              <span>攻击：点“攻击”或按 <b>J</b></span>
+              <span>点下方“开始游戏”或直接点“跳跃”也会立刻开跑</span>
+              <span>坚持越久，速度越快</span>
+            </div>
+            <button id="startButton" class="action-btn primary" type="button">开始游戏</button>
+          </div>
+        </div>
+
+      </section>
+
+      <footer class="controls">
+        <div class="start-strip">
+          <button id="quickStartButton" class="start-strip-btn" type="button">开始游戏</button>
+          <span id="startHint" class="start-hint">点开始游戏，或直接点“跳跃”立即开跑</span>
+        </div>
+        <button id="leaderboardButton" class="subtle-btn" type="button">排行榜</button>
+        <div class="control-note">
+          <span>手机触控与键盘都可玩</span>
+          <span>横屏体验更顺手</span>
+        </div>
+        <div class="control-buttons">
+          <button id="jumpButton" class="control-btn jump" type="button">跳跃</button>
+          <button id="attackButton" class="control-btn attack" type="button">攻击</button>
+        </div>
+      </footer>
+    </section>
+  </main>
+
+  <div id="gameOverOverlay" class="modal-overlay" aria-hidden="true">
+    <div class="modal-backdrop"></div>
+    <section class="modal-panel result-modal-panel" aria-label="结算弹窗">
+      <header class="modal-header">
+        <div>
+          <p class="overlay-kicker danger">冲刺中断</p>
+          <h2>可欣被拦下了</h2>
+        </div>
+      </header>
+
+      <div class="modal-content result-modal-content">
+        <p class="overlay-text result-copy">再来一局，看看你能陪她冲多远。</p>
+        <div class="result-row">
+          <span>本局分数</span>
+          <strong id="finalScore">0</strong>
+        </div>
+        <div class="result-row">
+          <span>历史最高</span>
+          <strong id="finalBest">0</strong>
+        </div>
+        <div class="submit-card">
+          <label class="field-label" for="nicknameInput">上传到在线排行榜</label>
+          <input id="nicknameInput" class="text-input" type="text" maxlength="16" placeholder="请输入昵称，仅支持中文、字母、数字和下划线">
+          <p id="submitStatus" class="status-text" aria-live="polite">输入昵称后提交本局分数。</p>
+          <div class="overlay-actions">
+            <button id="submitScoreButton" class="action-btn primary" type="button">提交分数</button>
+            <button id="viewLeaderboardButton" class="action-btn secondary" type="button">查看排行榜</button>
+          </div>
+        </div>
+      </div>
+
+      <footer class="modal-footer">
+        <button id="restartButton" class="action-btn primary" type="button">重新开始</button>
+      </footer>
+    </section>
+  </div>
+
+  <div id="leaderboardOverlay" class="modal-overlay" aria-hidden="true">
+    <div class="modal-backdrop"></div>
+    <section class="modal-panel leaderboard-modal-panel" aria-label="排行榜弹窗">
+      <header class="modal-header">
+        <div>
+          <p class="overlay-kicker">公共排行榜</p>
+          <h2>可欣快跑榜单</h2>
+        </div>
+        <button id="closeLeaderboardButton" class="icon-btn" type="button" aria-label="关闭排行榜">关闭</button>
+      </header>
+
+      <div class="modal-content leaderboard-modal-content">
+        <div class="result-row compact">
+          <span>我的已提交最高</span>
+          <strong id="myBestLeaderboardValue">0</strong>
+        </div>
+
+        <p id="leaderboardStatus" class="status-text">点击刷新即可查看最新榜单。</p>
+
+        <div class="modal-actions">
+          <button id="refreshLeaderboardButton" class="action-btn primary" type="button">刷新排行榜</button>
+        </div>
+
+        <div class="leaderboard-scroll" id="leaderboardScroll">
+          <table class="leaderboard-table">
+            <thead>
+              <tr>
+                <th>排名</th>
+                <th>昵称</th>
+                <th>分数</th>
+                <th>时间</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboardBody">
+              <tr>
+                <td colspan="4" class="empty-row">暂无排行数据</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
